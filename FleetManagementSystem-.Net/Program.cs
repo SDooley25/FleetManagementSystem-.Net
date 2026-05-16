@@ -11,6 +11,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddIdentity<FMSUser,FMSRole>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddUserStore<FMSUserStore>()
     .AddRoleStore<FMSRoleStore>()
+    .AddRoleManager<RoleManager<FMSRole>>()
     .AddUserManager<UserManager<FMSUser>>()
     .AddSignInManager<SignInManager<FMSUser>>()
     .AddDefaultTokenProviders();
@@ -27,6 +28,12 @@ builder.Services.AddScoped<IRoleStore<FMSRole>, FMSRoleStore>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 var app = builder.Build();
 
@@ -63,5 +70,7 @@ app.MapControllerRoute(
 
 app.MapRazorPages()
    .WithStaticAssets();
+
+app.UseSession();
 
 app.Run();

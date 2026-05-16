@@ -1,13 +1,16 @@
 ﻿using FleetManagementSystem_.Net.Extensions;
 using Microsoft.Data.SqlClient;
+using System.ComponentModel.DataAnnotations;
 
 namespace FleetManagementSystem_.Net.Areas.Identity.Models
 {
     public sealed class FMSUser
     {
         public Guid Id { get; set; } = Guid.NewGuid();
+        [Required]
         public string? UserName { get; set; }
         public string? NormalizedUserName { get; set; }
+        [Required]
         public string? Email { get; set; }
         public string? NormalizedEmail { get; set; }
         public bool EmailConfirmed { get; set; }
