@@ -1,5 +1,4 @@
-﻿
-using FleetManagementSystem_.Net.Areas.Identity.Models;
+﻿using FleetManagementSystem_.Net.Areas.Identity.Models;
 using FleetManagementSystem_.Net.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Build.Framework;
@@ -14,11 +13,25 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Stores
         IUserRoleStore<FMSUser>,
         IUserLockoutStore<FMSUser>,
         IUserEmailStore<FMSUser>,
+        IQueryableUserStore<FMSUser>,
         IDisposable
     {
 
         private readonly string _connString;
         private readonly ILogger<FMSUserStore> _logger;
+
+        private List<FMSUser>? _users;
+        public IQueryable<FMSUser> Users
+        {
+            get
+            {
+                if(_users == null)
+                {
+                    _users = GetAllUsersAsync(CancellationToken.None).GetAwaiter().GetResult();
+                }
+                return _users.AsQueryable();
+            }
+        }
 
         public FMSUserStore(IConfiguration configuration,
             ILogger<FMSUserStore> logger)
@@ -154,6 +167,22 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Stores
             return null;
         }
 
+        public async Task<List<FMSUser>> GetAllUsersAsync(CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            _logger.LogInformation("GetAllUsers");
+            using var connection = new SqlConnection(_connString);
+            await connection.OpenAsync();
+    
+            using var command = new SqlCommand("slistUser", connection);
+            command.CommandType = CommandType.StoredProcedure;
+            command.PrepareCommand();
+            using var reader = await command.ExecuteReaderAsync();
+    
+            var users = FMSUser.GetListColumns(reader);
+            return users;
+        }
+
         public Task<string?> GetUserIdAsync(FMSUser user, CancellationToken cancellationToken)
         {
             return Task.FromResult<string?>(user.Id.ToString());
@@ -203,43 +232,114 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Stores
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            // TODO: Call stored procedure to add mapping user->role.
-            // stored proc: usp_AddUserToRole (parameters: @UserId, @RoleName or @RoleId)
+            _logger.LogInformation("AddToRole - UserId: {UserId} Role: {RoleName}", user.Id, roleName);
+            using var connection = new SqlConnection(_connString);
+            await connection.OpenAsync();
+
+            using var command = new SqlCommand("iUserRole", connection)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            command.AddParameterWithValue("UserId", user.Id);
+            command.AddParameterWithValue("RoleName", roleName);
+            command.PrepareCommand();
+
+            await command.ExecuteNonQueryAsync();
         }
 
         public async Task RemoveFromRoleAsync(FMSUser user, string roleName, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            // TODO: Call stored procedure to remove mapping user->role.
-            // stored proc: usp_RemoveUserFromRole
+            _logger.LogInformation("RemoveFromRole - UserId: {UserId} Role: {RoleName}", user.Id, roleName);
+            using var connection = new SqlConnection(_connString);
+            await connection.OpenAsync();
+
+            using var command = new SqlCommand("dUserRole", connection)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            command.AddParameterWithValue("UserId", user.Id);
+            command.AddParameterWithValue("RoleName", roleName);
+            command.PrepareCommand();
+
+            await command.ExecuteNonQueryAsync();
         }
 
         public async Task<IList<string>> GetRolesAsync(FMSUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            // TODO: Call stored procedure to return role names for the user.
-            // stored proc: usp_GetRolesForUser
-            return await Task.FromResult((IList<string>)new List<string>());
+            _logger.LogInformation("GetRoles - UserId: {UserId}", user.Id);
+            using var connection = new SqlConnection(_connString);
+            await connection.OpenAsync();
+
+            using var command = new SqlCommand("slistUserRoleByUserId", connection)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            command.AddParameterWithValue("UserId", user.Id);
+            command.PrepareCommand();
+
+            using var reader = await command.ExecuteReaderAsync();
+
+            var roles = new List<string>();
+            while (reader.Read())
+            {
+                var name = reader.Get<string>("RoleName");
+                if (!string.IsNullOrEmpty(name))
+                {
+                    roles.Add(name);
+                }
+            }
+
+            return roles;
         }
 
         public async Task<bool> IsInRoleAsync(FMSUser user, string roleName, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            // TODO: Call stored procedure to check membership
-            // stored proc: usp_IsUserInRole
-            return await Task.FromResult(false);
+            _logger.LogInformation("IsInRole - UserId: {UserId} Role: {RoleName}", user.Id, roleName);
+            using var connection = new SqlConnection(_connString);
+            await connection.OpenAsync();
+
+            using var command = new SqlCommand("sUserRole", connection)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            command.AddParameterWithValue("UserId", user.Id);
+            command.AddParameterWithValue("RoleName", roleName);
+            command.PrepareCommand();
+
+            using var reader = await command.ExecuteReaderAsync();
+            return reader.HasRows;
         }
 
         public async Task<IList<FMSUser>> GetUsersInRoleAsync(string roleName, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            // TODO: Call stored procedure to return users in a role
-            // stored proc: usp_GetUsersInRole
-            return await Task.FromResult((IList<FMSUser>)new List<FMSUser>());
+            _logger.LogInformation("GetUsersInRole - RoleName: {RoleName}", roleName);
+            using var connection = new SqlConnection(_connString);
+            await connection.OpenAsync();
+
+            using var command = new SqlCommand("slistUserRoleByRoleId", connection)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            // Stored proc expects role identifier; many systems accept role name here as well.
+            command.AddParameterWithValue("RoleName", roleName);
+            command.PrepareCommand();
+
+            using var reader = await command.ExecuteReaderAsync();
+            var users = FMSUser.GetListColumns(reader);
+            return users;
         }
 
         // ---- IUserLockoutStore ----

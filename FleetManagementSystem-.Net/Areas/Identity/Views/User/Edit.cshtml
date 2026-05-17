@@ -1,0 +1,73 @@
+﻿@using FleetManagementSystem_.Net.Areas.Identity.Models.ViewModels
+@model UserEditViewModel
+
+@{
+    ViewData["Title"] = "Edit User";
+}
+
+<h2 class="mb-4">@ViewData["Title"]</h2>
+
+<form asp-action="Edit" method="post" class="needs-validation" novalidate>
+    @Html.AntiForgeryToken()
+
+    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+    <div class="mb-3">
+        <label asp-for="Id" class="form-label">Id</label>
+        <input asp-for="Id" class="form-control" disabled />
+        <input type="hidden" asp-for="Id" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="UserName" class="form-label">Username</label>
+        <input asp-for="UserName" class="form-control" />
+        <span asp-validation-for="UserName" class="text-danger"></span>
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="LockoutEnabled" class="form-check-input" />
+        <label asp-for="LockoutEnabled" class="form-check-label">Lockout Enabled</label>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="LockoutEndLocal" class="form-label">Lockout End</label>
+        <input asp-for="LockoutEndLocal" class="form-control" type="datetime-local" />
+        <div class="form-text">Leave blank for no lockout end.</div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="AccessFailedCount" class="form-label">Access Failed Attempts</label>
+        <input asp-for="AccessFailedCount" class="form-control" type="number" min="0" />
+    </div>
+
+    <fieldset class="mb-3">
+        <legend class="small">Roles</legend>
+        <div class="d-flex flex-column">
+            @if (Model.Roles == null || !Model.Roles.Any())
+            {
+                <div class="text-muted">No roles defined.</div>
+            }
+            else
+            {
+                foreach (var r in Model.Roles)
+                {
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="SelectedRoles" value="@r.Name" id="role_@r.Id" @(r.IsSelected ? "checked" : "") />
+                        <label class="form-check-label" for="role_@r.Id">
+                            <strong>@r.Name</strong>
+                            @if (!string.IsNullOrEmpty(r.Description))
+                            {
+                                <div class="small text-muted">@r.Description</div>
+                            }
+                        </label>
+                    </div>
+                }
+            }
+        </div>
+    </fieldset>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a asp-action="Index" asp-area="Identity" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>

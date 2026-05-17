@@ -24,9 +24,9 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Models
             
         }
 
-        public FMSUser(SqlDataReader dataReader)
+        public FMSUser(SqlDataReader dataReader, bool isList=false)
         {
-            GetColumns(dataReader);
+            GetColumns(dataReader, isList);
         }
         public void GetColumns(SqlDataReader dataReader, bool isList=false)
         {
@@ -45,5 +45,47 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Models
             LockoutEnd = dataReader.Get<DateTimeOffset?>("LockoutEnd");
             AccessFailedCount = dataReader.Get<int>("AccessFailedCount");
         }
+
+        public static List<FMSUser> GetListColumns(SqlDataReader dataReader)
+        {
+            List<FMSUser> list = new List<FMSUser>();
+            while (dataReader.Read())
+            {
+                FMSUser item = new FMSUser(dataReader,true);
+                list.Add(item);
+            }
+            return list;
+        }
+
+        // Lightweight view model used by the view
+    public class ListItem
+    {
+        public string? Id { get; set; }
+        public string? UserName { get; set; }
+        public DateTimeOffset? LockoutEnd { get; set; }
+        public int AccessFailedCount { get; set; }
+
+        public void Fill(FMSUser item) 
+        { 
+            Id=item.Id.ToString();
+            UserName=item.UserName;
+            LockoutEnd=item.LockoutEnd;
+            AccessFailedCount=item.AccessFailedCount;
+        }
+
+        public static List<ListItem> GetList(List<FMSUser> items)
+        {
+            List<ListItem> list = new List<ListItem>();
+            foreach (var item in items)
+            {
+                ListItem viewItem = new ListItem();
+                viewItem.Fill(item);
+                list.Add(viewItem);
+            }
+            return list;
+        }
     }
+    }
+
+    
 }
