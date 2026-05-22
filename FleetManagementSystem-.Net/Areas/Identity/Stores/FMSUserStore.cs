@@ -18,6 +18,7 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Stores
     {
 
         private readonly string _connString;
+        private readonly RoleManager<FMSRole> _roleManager;
         private readonly ILogger<FMSUserStore> _logger;
 
         private List<FMSUser>? _users;
@@ -34,9 +35,11 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Stores
         }
 
         public FMSUserStore(IConfiguration configuration,
+            RoleManager<FMSRole> roleManager,
             ILogger<FMSUserStore> logger)
         {
-            _connString = configuration.GetConnectionString();                
+            _connString = configuration.GetConnectionString();
+            _roleManager = roleManager;
             _logger = logger;
         }        
 
@@ -80,6 +83,7 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Stores
     
             using var command = new SqlCommand("uUser", connection);
             command.CommandType = CommandType.StoredProcedure;
+            command.AddParameterWithValue("Id", user.Id);
             command.AddParameterWithValue("UserName", user.UserName);
             command.AddParameterWithValue("NormalizedUserName", user.NormalizedUserName);
             command.AddParameterWithValue("Email", user.Email);
@@ -230,6 +234,8 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Stores
         // ---- IUserRoleStore ----
         public async Task AddToRoleAsync(FMSUser user, string roleName, CancellationToken cancellationToken)
         {
+            var role = _roleManager.Roles.Where(x => x.NormalizedName == roleName).FirstOrDefault();
+
             cancellationToken.ThrowIfCancellationRequested();
 
             _logger.LogInformation("AddToRole - UserId: {UserId} Role: {RoleName}", user.Id, roleName);
@@ -242,7 +248,7 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Stores
             };
 
             command.AddParameterWithValue("UserId", user.Id);
-            command.AddParameterWithValue("RoleName", roleName);
+            command.AddParameterWithValue("RoleId", role?.Id);
             command.PrepareCommand();
 
             await command.ExecuteNonQueryAsync();
@@ -250,6 +256,8 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Stores
 
         public async Task RemoveFromRoleAsync(FMSUser user, string roleName, CancellationToken cancellationToken)
         {
+            var role = _roleManager.Roles.Where(x => x.NormalizedName == roleName).FirstOrDefault();
+
             cancellationToken.ThrowIfCancellationRequested();
 
             _logger.LogInformation("RemoveFromRole - UserId: {UserId} Role: {RoleName}", user.Id, roleName);
@@ -262,7 +270,7 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Stores
             };
 
             command.AddParameterWithValue("UserId", user.Id);
-            command.AddParameterWithValue("RoleName", roleName);
+            command.AddParameterWithValue("RoleId", role?.Id);
             command.PrepareCommand();
 
             await command.ExecuteNonQueryAsync();
@@ -307,13 +315,13 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Stores
             using var connection = new SqlConnection(_connString);
             await connection.OpenAsync();
 
-            using var command = new SqlCommand("sUserRole", connection)
+            using var command = new SqlCommand("sUserRoleByUserIdRoleNormName", connection)
             {
                 CommandType = CommandType.StoredProcedure
             };
 
             command.AddParameterWithValue("UserId", user.Id);
-            command.AddParameterWithValue("RoleName", roleName);
+            command.AddParameterWithValue("RoleNormName", roleName);
             command.PrepareCommand();
 
             using var reader = await command.ExecuteReaderAsync();

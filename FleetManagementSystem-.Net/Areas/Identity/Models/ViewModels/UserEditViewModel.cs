@@ -7,6 +7,8 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Models.ViewModels
     {
         public string? Id { get; set; }
         public string? UserName { get; set; }
+        public string? Password { get; set; }
+        public string? ConfirmPassword { get; set; }
         public bool LockoutEnabled { get; set; }
         public string? LockoutEndLocal { get; set; } // binds to datetime-local input
         public int AccessFailedCount { get; set; }

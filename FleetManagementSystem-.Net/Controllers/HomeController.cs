@@ -11,8 +11,15 @@ namespace FleetManagementSystem_.Net.Controllers
         {
             return View();
         }
-        [Authorize]
+        [Authorize(Roles ="Role1")]
         public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        // New access denied page
+        [AllowAnonymous]
+        public IActionResult AccessDenied()
         {
             return View();
         }

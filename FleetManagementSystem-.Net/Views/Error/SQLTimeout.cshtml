@@ -1,0 +1,20 @@
+﻿@{
+    ViewData["Title"] = "Error - SQL Timeout";
+    // Layout = "_Layout";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="alert alert-warning" role="alert">
+                <h2 class="h4 mb-2">Database timeout</h2>
+                <p class="mb-1">We couldn't complete your request because the application timed out while accessing the database.</p>
+                <p class="mb-0 text-muted">This often happens during database "cold starts" after a deployment or being idle.</p>
+                <p class="mb-0 text-muted">Please wait 30-60 seconds for the database to warm up and try again.</p>
+                <p class="mb-0 text-muted">If the problem persists, contact your administrator and include the Request ID below.</p>
+            </div>            
+        </div>
+    </div>
+</div>
+
+

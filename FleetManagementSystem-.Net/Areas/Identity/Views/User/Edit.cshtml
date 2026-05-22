@@ -24,6 +24,17 @@
         <span asp-validation-for="UserName" class="text-danger"></span>
     </div>
 
+    <div class="mb-3">
+        <label asp-for="Password" class="form-label">Password</label>
+        <input asp-for="Password" type="password" class="form-control" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
+        <input asp-for="ConfirmPassword" type="password" class="form-control" />
+        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+    </div>
+
     <div class="form-check mb-3">
         <input asp-for="LockoutEnabled" class="form-check-input" />
         <label asp-for="LockoutEnabled" class="form-check-label">Lockout Enabled</label>

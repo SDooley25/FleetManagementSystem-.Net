@@ -8,10 +8,12 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using FleetManagementSystem_.Net.Areas.Identity.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
 {
     [Area("Identity")]
+    [Authorize(Roles ="SuperAdmin")]
     public class UserController : Controller
     {
         private readonly UserManager<FMSUser> _userManager;
@@ -79,6 +81,15 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
             {
                 ModelState.AddModelError(string.Empty, "User identifier mismatch or session expired.");
             }
+            var changedPassword = false;
+            if (!string.IsNullOrWhiteSpace(model.Password + model.ConfirmPassword))
+            {
+                changedPassword = true;
+                if (model.Password != model.ConfirmPassword)
+                {
+                    ModelState.AddModelError("ConfirmPassword", "Passwords Must Match");
+                }
+            }
 
             if (!ModelState.IsValid)
             {
@@ -108,9 +119,10 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
                     NormalizedUserName = model.UserName?.ToUpperInvariant(),
                     LockoutEnabled = model.LockoutEnabled,
                     AccessFailedCount = model.AccessFailedCount,
-                    LockoutEnd = ParseLockoutEnd(model.LockoutEndLocal)
+                    LockoutEnd = ParseLockoutEnd(model.LockoutEndLocal),
+                    EmailConfirmed = true //no access to email server so auto confirm
                 };
-
+                
                 var createResult = await _userManager.CreateAsync(newUser);
                 if (!createResult.Succeeded)
                 {
@@ -128,6 +140,11 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
                         IsSelected = model.SelectedRoles != null && model.SelectedRoles.Contains(r.Name)
                     }).ToList();
                     return View(model);
+                }
+
+                if (changedPassword)
+                {
+                    await _userManager.AddPasswordAsync(newUser, model.Password);
                 }
 
                 // handle roles
@@ -150,6 +167,7 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
                 existing.LockoutEnabled = model.LockoutEnabled;
                 existing.AccessFailedCount = model.AccessFailedCount;
                 existing.LockoutEnd = ParseLockoutEnd(model.LockoutEndLocal);
+                existing.EmailConfirmed = true; //no access to email server so auto confirm
 
                 var updateResult = await _userManager.UpdateAsync(existing);
                 if (!updateResult.Succeeded)
@@ -168,6 +186,12 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
                         IsSelected = model.SelectedRoles != null && model.SelectedRoles.Contains(r.Name)
                     }).ToList();
                     return View(model);
+                }
+
+                if (changedPassword)
+                {
+                    var token = await _userManager.GeneratePasswordResetTokenAsync(existing);
+                    await _userManager.ResetPasswordAsync(existing, token,model.Password);
                 }
 
                 // update roles membership

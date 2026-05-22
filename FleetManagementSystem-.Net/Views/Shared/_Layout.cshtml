@@ -26,17 +26,19 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Admin
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" asp-area="Identity" asp-controller="Role" asp-action="Index">Role Management</a></li>
-                                <li><a class="dropdown-item" asp-area="Identity" asp-controller="User" asp-action="Index">User Management</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#">Something else here</a></li>
-                            </ul>
-                        </li>
+                        @if (User.IsInRole("SuperAdmin"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link text-dark dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Admin
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-area="Identity" asp-controller="Role" asp-action="Index">Role Management</a></li>
+                                    <li><a class="dropdown-item" asp-area="Identity" asp-controller="User" asp-action="Index">User Management</a></li>
+                                </ul>
+                            </li>
+                        }
+                           
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>

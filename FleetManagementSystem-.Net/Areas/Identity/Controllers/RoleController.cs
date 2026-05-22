@@ -5,10 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using FleetManagementSystem_.Net.Areas.Identity.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
 {
     [Area("Identity")]
+    [Authorize(Roles ="SuperAdmin")]
     public class RoleController : Controller
     {
         private readonly RoleManager<FMSRole> _roleManager;

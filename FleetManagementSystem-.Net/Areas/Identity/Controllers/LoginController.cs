@@ -52,7 +52,7 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
                 {
                     return Redirect(model.ReturnUrl);
                 }
-                return RedirectToAction("Index", "Home");
+                return Redirect("/");
             }
 
             if (result.IsLockedOut)

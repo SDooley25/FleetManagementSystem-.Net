@@ -1,6 +1,8 @@
 using FleetManagementSystem_.Net.Areas.Identity.Models;
 using FleetManagementSystem_.Net.Areas.Identity.Stores;
 using FleetManagementSystem_.Net.Data;
+using FleetManagementSystem_.Net.Middleware;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,10 +18,30 @@ builder.Services.AddIdentity<FMSUser,FMSRole>(options => options.SignIn.RequireC
     .AddSignInManager<SignInManager<FMSUser>>()
     .AddDefaultTokenProviders();
 
+builder.Services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, AuthorisationHandler>();
+
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Identity/Login";
     options.LogoutPath = "/Identity/Logout";
+
+    // Set the path the middleware will redirect to on 403 (Access Denied)
+    options.AccessDeniedPath = "/Home/AccessDenied";
+
+    // For AJAX/API calls, return 403 instead of redirecting
+    options.Events.OnRedirectToAccessDenied = context =>
+    {
+        var isAjax = string.Equals(context.Request.Headers["X-Requested-With"], "XMLHttpRequest", StringComparison.OrdinalIgnoreCase);
+        var isApi = context.Request.Path.StartsWithSegments("/api");
+        if (isAjax || isApi)
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            return Task.CompletedTask;
+        }
+
+        context.Response.Redirect(context.RedirectUri);
+        return Task.CompletedTask;
+    };
 });
     
 
@@ -36,6 +58,8 @@ builder.Services.AddSession(options =>
 });
 
 var app = builder.Build();
+
+app.UseSQLExceptionHandlerMiddleware();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
