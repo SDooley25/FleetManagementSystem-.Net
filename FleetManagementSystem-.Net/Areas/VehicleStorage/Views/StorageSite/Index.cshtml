@@ -1,0 +1,54 @@
+﻿@using FleetManagementSystem_.Net.Models
+@model List<StorageSite>
+
+@{
+    ViewData["Title"] = "Storage Sites";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Storage Sites</h2>
+    <a class="btn btn-primary" asp-action="Edit">Create New Storage Site</a>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<table class="table table-striped table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>Name</th>
+            <th>Address</th>
+            <th>Postcode</th>
+            <th>Max Vehicle Capacity</th>
+            <th>Has Repair Station</th>
+            <th>In Use Date</th>
+            <th>Out Use Date</th>
+            <th style="width:150px;">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var site in Model)
+    {
+        <tr>
+            <td>@site.Name</td>
+            <td>@site.Address</td>
+            <td>@site.Postcode</td>
+            <td>@site.MaxVehicleCapacity</td>
+            <td>@(site.HasRepairStation ? "Yes" : "No")</td>
+            <td>@(site.InUseDate?.ToString("yyyy-MM-dd") ?? "")</td>
+            <td>@(site.OutUseDate?.ToString("yyyy-MM-dd") ?? "")</td>
+            <td>
+                <a class="btn btn-sm btn-secondary me-1" asp-action="Edit" asp-route-id="@site.Id">Edit</a>
+
+                <form asp-action="Delete" method="post" class="d-inline">
+                    <input type="hidden" name="id" value="@site.Id" />
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this storage site?');">Delete</button>
+                    @Html.AntiForgeryToken()
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

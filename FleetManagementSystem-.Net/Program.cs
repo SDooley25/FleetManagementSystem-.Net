@@ -47,6 +47,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.AddScoped<IUserStore<FMSUser>, FMSUserStore>();
 builder.Services.AddScoped<IRoleStore<FMSRole>, FMSRoleStore>();
+builder.Services.AddScoped<IStorageSiteRepository, StorageSiteRepository>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
