@@ -45,6 +45,7 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" asp-area="VehicleStorage" asp-controller="StorageSite" asp-action="Index">Storage Sites</a></li>
+                                <li><a class="dropdown-item" asp-area="VehicleStorage" asp-controller="Vehicle" asp-action="Index">Vehicles</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -55,6 +56,9 @@
     </header>
     <div class="container">
         <main role="main" class="pb-3">
+
+            <partial name="_AlertsPartial" />
+
             @RenderBody()
         </main>
     </div>

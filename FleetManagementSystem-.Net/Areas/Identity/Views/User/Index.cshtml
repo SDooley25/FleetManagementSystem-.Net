@@ -40,7 +40,16 @@
                     <td class="align-middle">@u.AccessFailedCount</td>
                     <td class="align-middle">
                         <a asp-area="Identity" asp-controller="User" asp-action="Edit" asp-route-id="@u.Id" class="btn btn-sm btn-outline-primary me-1">Edit</a>
-                        <a asp-area="Identity" asp-controller="User" asp-action="Details" asp-route-id="@u.Id" class="btn btn-sm btn-outline-secondary">Details</a>
+                        @{ 
+                            var confirmModel = new FleetManagementSystem_.Net.Models.ConfirmPromptModel
+                            {
+                                Message = $"Delete user {u.UserName}? This action cannot be undone.",
+                                Url = Url.Action("Delete","User", new { area = "Identity", id = u.Id }),
+                                Method = "POST",
+                                ButtonText = "Delete"
+                            };
+                        }
+                        <partial name="_ConfirmPrompt" model="confirmModel" />
                     </td>
                 </tr>
             }

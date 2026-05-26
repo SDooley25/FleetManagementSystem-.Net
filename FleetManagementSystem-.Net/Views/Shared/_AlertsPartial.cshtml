@@ -1,0 +1,25 @@
+﻿@using FleetManagementSystem_.Net.Models.Enums
+@using FleetManagementSystem_.Net.Services
+@inject IAlertService AlertService
+
+@{
+    var alerts = AlertService.GetAlerts();
+    AlertService.ClearAlerts();
+}
+
+@foreach (var alert in alerts)
+{
+    var alertClass = alert.Level switch
+    {
+        AlertLevel.Success => "alert-success",
+        AlertLevel.Information => "alert-info",
+        AlertLevel.Warning => "alert-warning",
+        AlertLevel.Error => "alert-danger",
+        _ => "alert-secondary"
+    };
+    <div class="alert @alertClass alert-dismissible fade show" role="alert">
+        @alert.Level.ToString() :
+        @alert.Message
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}

@@ -1,7 +1,9 @@
 using FleetManagementSystem_.Net.Data;
 using FleetManagementSystem_.Net.Models;
+using FleetManagementSystem_.Net.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
+using FleetManagementSystem_.Net.Models.Enums;
 
 namespace FleetManagementSystem_.Net.Areas.VehicleStorage.Controllers
 {
@@ -10,12 +12,14 @@ namespace FleetManagementSystem_.Net.Areas.VehicleStorage.Controllers
     {
         private readonly IStorageSiteRepository _repository;
         private readonly ILogger<StorageSiteController> _logger;
+        private readonly IAlertService _alertService;
         private const string SessionKey = "StorageSite.Id";
 
-        public StorageSiteController(IStorageSiteRepository repository, ILogger<StorageSiteController> logger)
+        public StorageSiteController(IStorageSiteRepository repository, ILogger<StorageSiteController> logger, IAlertService alertService)
         {
             _repository = repository;
             _logger = logger;
+            _alertService = alertService;
         }
 
         // Index = list
@@ -52,7 +56,7 @@ namespace FleetManagementSystem_.Net.Areas.VehicleStorage.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(StorageSite model, CancellationToken cancellationToken)
-        {
+        {            
             cancellationToken.ThrowIfCancellationRequested();
 
             var sessionId = HttpContext.Session.GetString(SessionKey);
@@ -81,6 +85,7 @@ namespace FleetManagementSystem_.Net.Areas.VehicleStorage.Controllers
                     ModelState.AddModelError(string.Empty, "Failed to create storage site.");
                     return View(model);
                 }
+                _alertService.AddAlert("Storage site created successfully.",AlertLevel.Success);
             }
             else
             {
@@ -90,6 +95,7 @@ namespace FleetManagementSystem_.Net.Areas.VehicleStorage.Controllers
                     ModelState.AddModelError(string.Empty, "Failed to update storage site.");
                     return View(model);
                 }
+                _alertService.AddAlert("Storage site updated successfully.", AlertLevel.Success);
             }
 
             // clear session id as it's no longer needed
@@ -114,7 +120,11 @@ namespace FleetManagementSystem_.Net.Areas.VehicleStorage.Controllers
             var deleted = await _repository.DeleteAsync(site, cancellationToken);
             if (!deleted)
             {
-                TempData["Error"] = "Could not delete storage site.";
+                _alertService.AddAlert("Could not delete storage site.", AlertLevel.Error);
+            }
+            else
+            {
+                _alertService.AddAlert("Storage site deleted successfully.", AlertLevel.Success);
             }
 
             return RedirectToAction(nameof(Index));

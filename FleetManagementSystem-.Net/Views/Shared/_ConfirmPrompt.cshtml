@@ -1,0 +1,36 @@
+@model FleetManagementSystem_.Net.Models.ConfirmPromptModel
+@{
+    var id = "confirmModal_" + System.Guid.NewGuid().ToString("N");
+    var btnClass = "btn btn-sm btn-outline-danger";
+}
+<button type="button" class="@btnClass" data-bs-toggle="modal" data-bs-target="#@id">
+    @Model.ButtonText
+</button>
+
+<div class="modal fade" id="@id" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @Model.Message
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                @if (string.Equals(Model.Method, "GET", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    <a class="btn btn-danger" href="@Model.Url">@Model.ButtonText</a>
+                }
+                else
+                {
+                    <form method="post" action="@Model.Url" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger">@Model.ButtonText</button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,75 @@
+@model FleetManagementSystem_.Net.Models.Vehicle
+@using FleetManagementSystem_.Net.Models.Enums
+@{
+    ViewData["Title"] = Model.Id == Guid.Empty ? "Create Vehicle" : "Edit Vehicle";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Edit" method="post" class="needs-validation" novalidate>
+    @Html.AntiForgeryToken()
+
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label class="form-label">Id</label>
+        <input class="form-control" value="@Model.Id" disabled />
+        <input asp-for="Id" type="hidden" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Make" class="form-label"></label>
+        <input asp-for="Make" class="form-control" />
+        <span asp-validation-for="Make" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Model" class="form-label"></label>
+        <input asp-for="Model" class="form-control" />
+        <span asp-validation-for="Model" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Fuel Type</label>
+        <select asp-for="FuelType" class="form-select">
+            <option value="">Select fuel</option>
+            @foreach (var f in Enum.GetValues(typeof(FuelType)).Cast<FuelType>())
+            {
+                <option value="@f.ToString()" selected="@(Model.FuelType == f.ToString() ? "selected" : null)">@f.ToString()</option>
+            }
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="EngineSize" class="form-label"></label>
+        <input asp-for="EngineSize" type="number" step="0.01" class="form-control" />
+        <span asp-validation-for="EngineSize" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="DateOfRegistration" class="form-label"></label>
+        <input asp-for="DateOfRegistration" class="form-control" type="date" />
+        <span asp-validation-for="DateOfRegistration" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="LastMotDate" class="form-label"></label>
+        <input asp-for="LastMotDate" class="form-control" type="date" />
+        <span asp-validation-for="LastMotDate" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="LastMotMileage" class="form-label"></label>
+        <input asp-for="LastMotMileage" class="form-control" type="number" />
+        <span asp-validation-for="LastMotMileage" class="text-danger"></span>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

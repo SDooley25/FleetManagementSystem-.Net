@@ -2,6 +2,7 @@ using FleetManagementSystem_.Net.Areas.Identity.Models;
 using FleetManagementSystem_.Net.Areas.Identity.Stores;
 using FleetManagementSystem_.Net.Data;
 using FleetManagementSystem_.Net.Middleware;
+using FleetManagementSystem_.Net.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -48,7 +49,11 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddScoped<IUserStore<FMSUser>, FMSUserStore>();
 builder.Services.AddScoped<IRoleStore<FMSRole>, FMSRoleStore>();
 builder.Services.AddScoped<IStorageSiteRepository, StorageSiteRepository>();
+builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
 
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IAlertService, AlertService>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddSession(options =>

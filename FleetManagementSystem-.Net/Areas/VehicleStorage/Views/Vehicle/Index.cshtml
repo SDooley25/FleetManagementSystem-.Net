@@ -1,0 +1,52 @@
+@model List<FleetManagementSystem_.Net.Models.Vehicle>
+@{
+    ViewData["Title"] = "Vehicles";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">@ViewData["Title"]</h2>
+    <a asp-area="VehicleStorage" asp-controller="Vehicle" asp-action="Edit" class="btn btn-primary">Create New</a>
+</div>
+
+<table class="table table-striped table-bordered">
+    <thead class="table-light">
+        <tr>
+            <th>Id</th>
+            <th>Make</th>
+            <th>Model</th>
+            <th>Fuel</th>
+            <th>Engine</th>
+            <th>Reg Date</th>
+            <th>Last MOT</th>
+            <th>Last MOT Mileage</th>
+            <th style="width:150px;">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model == null || !Model.Any())
+        {
+            <tr><td colspan="9" class="text-center text-muted">No vehicles found.</td></tr>
+        }
+        else
+        {
+            foreach (var v in Model)
+            {
+                <tr>
+                    <td class="align-middle">@v.Id</td>
+                    <td class="align-middle">@v.Make</td>
+                    <td class="align-middle">@v.Model</td>
+                    <td class="align-middle">@v.FuelType</td>
+                    <td class="align-middle">@v.EngineSize</td>
+                    <td class="align-middle">@v.DateOfRegistration.ToString("d")</td>
+                    <td class="align-middle">@(v.LastMotDate.HasValue? v.LastMotDate.Value.ToString("d") : "—")</td>
+                    <td class="align-middle">@(v.LastMotMileage.HasValue? v.LastMotMileage.ToString() : "—")</td>
+                    <td class="align-middle">
+                        <a asp-area="VehicleStorage" asp-controller="Vehicle" asp-action="Edit" asp-route-id="@v.Id" class="btn btn-sm btn-outline-primary me-1">Edit</a>
+                        @{ var confirmModel = new FleetManagementSystem_.Net.Models.ConfirmPromptModel { Message = $"Delete vehicle {v.Make} {v.Model}? This action cannot be undone.", Url = Url.Action("Delete","Vehicle", new { area = "VehicleStorage", id = v.Id }), Method = "POST", ButtonText = "Delete" }; }
+                        <partial name="_ConfirmPrompt" model="confirmModel" />
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

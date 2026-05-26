@@ -109,11 +109,11 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Stores
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            _logger.LogInformation("FindById - userId : {UserId}", user.Id);
+            _logger.LogInformation("Delete - userId : {UserId}", user.Id);
             using var connection = new SqlConnection(_connString);
             await connection.OpenAsync();
     
-            using var command = new SqlCommand("sUser", connection);
+            using var command = new SqlCommand("dUser", connection);
             command.CommandType = CommandType.StoredProcedure;
             command.AddParameterWithValue("Id", user.Id);
             command.PrepareCommand();

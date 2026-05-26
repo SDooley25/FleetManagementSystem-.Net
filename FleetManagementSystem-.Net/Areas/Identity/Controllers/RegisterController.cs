@@ -5,6 +5,8 @@ using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
 using FleetManagementSystem_.Net.Areas.Identity.Models;
 using FleetManagementSystem_.Net.Areas.Identity.Models.ViewModels;
+using FleetManagementSystem_.Net.Services;
+using FleetManagementSystem_.Net.Models.Enums;
 
 namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
 {
@@ -13,11 +15,13 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
     {
         private readonly UserManager<FMSUser> _userManager;
         private readonly ILogger<RegisterController> _logger;
+        private readonly IAlertService _alertService;
 
-        public RegisterController(UserManager<FMSUser> userManager, ILogger<RegisterController> logger)
+        public RegisterController(UserManager<FMSUser> userManager, ILogger<RegisterController> logger, IAlertService alertService)
         {
             _userManager = userManager;
             _logger = logger;
+            _alertService = alertService;
         }
 
         // GET: /Register
@@ -51,6 +55,7 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
             if (result.Succeeded)
             {
                 _logger.LogInformation("User {Username} created successfully.", model.Username);
+                _alertService.AddAlert("Registration successful. You may now log in.", AlertLevel.Success);
                 return RedirectToAction("Index", "Login");
             }
 
@@ -58,6 +63,7 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
             {
                 ModelState.AddModelError(string.Empty, error.Description);
             }
+            _alertService.AddAlert("Registration failed. See errors.", AlertLevel.Error);
 
             return View(model);
         }

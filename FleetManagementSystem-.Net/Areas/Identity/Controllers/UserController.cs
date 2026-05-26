@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using FleetManagementSystem_.Net.Areas.Identity.Models;
+using FleetManagementSystem_.Net.Services;
+using FleetManagementSystem_.Net.Models.Enums;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
@@ -19,13 +21,15 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
         private readonly UserManager<FMSUser> _userManager;
         private readonly RoleManager<FMSRole> _roleManager;
         private readonly ILogger<UserController> _logger;
+        private readonly IAlertService _alertService;
         private const string SessionKey = "FMSUser_Edit_Id";
 
-        public UserController(UserManager<FMSUser> userManager, RoleManager<FMSRole> roleManager, ILogger<UserController> logger)
+        public UserController(UserManager<FMSUser> userManager, RoleManager<FMSRole> roleManager, ILogger<UserController> logger, IAlertService alertService)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _logger = logger;
+            _alertService = alertService;
         }
 
         // GET: /Identity/User
@@ -130,6 +134,7 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
                     {
                         ModelState.AddModelError(string.Empty, err.Description);
                     }
+                    _alertService.AddAlert("Failed to create user.", AlertLevel.Error);
                     // reload roles for redisplay
                     var rolesAll = _roleManager.Roles.ToList();
                     model.Roles = rolesAll.Select(r => new UserEditViewModel.RoleCheckbox
@@ -176,6 +181,7 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
                     {
                         ModelState.AddModelError(string.Empty, err.Description);
                     }
+                    _alertService.AddAlert("Failed to update user.", AlertLevel.Error);
                     // reload roles for redisplay
                     var rolesAll = _roleManager.Roles.ToList();
                     model.Roles = rolesAll.Select(r => new UserEditViewModel.RoleCheckbox
@@ -214,6 +220,32 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
 
             // done - remove session key and redirect
             HttpContext.Session.Remove(SessionKey);
+            _alertService.AddAlert("User saved successfully.", AlertLevel.Success);
+            return RedirectToAction(nameof(Index));
+        }
+
+        // POST: /Identity/User/Delete/{id}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return BadRequest();
+
+            var existing = await _userManager.FindByIdAsync(id);
+            if (existing == null)
+            {
+                return NotFound();
+            }
+
+            var result = await _userManager.DeleteAsync(existing);
+            if (!result.Succeeded)
+            {
+                _alertService.AddAlert("Failed to delete user.", AlertLevel.Error);
+                return RedirectToAction(nameof(Index));
+            }
+
+            _alertService.AddAlert("User deleted successfully.", AlertLevel.Success);
             return RedirectToAction(nameof(Index));
         }
 
