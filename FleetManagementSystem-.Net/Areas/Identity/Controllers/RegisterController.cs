@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
@@ -11,7 +12,9 @@ using FleetManagementSystem_.Net.Models.Enums;
 namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
 {
     [Area("Identity")]
-    public class RegisterController : Controller
+    // Disabled: require a role that will not exist so the register pages are inaccessible while code remains
+    [Authorize(Roles = "__Disabled__")]
+    internal class RegisterController : Controller
     {
         private readonly UserManager<FMSUser> _userManager;
         private readonly ILogger<RegisterController> _logger;

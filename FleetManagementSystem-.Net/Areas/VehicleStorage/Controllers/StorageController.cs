@@ -2,12 +2,14 @@ using FleetManagementSystem_.Net.Data;
 using FleetManagementSystem_.Net.Models;
 using FleetManagementSystem_.Net.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using FleetManagementSystem_.Net.Models.Enums;
 using FleetManagementSystem_.Net.Areas.VehicleStorage.ViewModels;
 
 namespace FleetManagementSystem_.Net.Areas.VehicleStorage.Controllers
 {
     [Area("VehicleStorage")]
+    [Authorize(Roles = "VehicleStorage.Edit")]
     public class StorageController : Controller
     {
         private readonly IVehicleStorageRepository _repository;
@@ -128,6 +130,7 @@ namespace FleetManagementSystem_.Net.Areas.VehicleStorage.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "VehicleStorage.Admin")]
         public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();

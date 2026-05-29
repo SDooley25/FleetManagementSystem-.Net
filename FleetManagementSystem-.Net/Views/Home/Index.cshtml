@@ -1,8 +1,81 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model FleetManagementSystem_.Net.Models.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center mb-3">
+        <h1 class="mb-0">Dashboard</h1>
+        <small class="text-muted">Overview of system status</small>
+    </div>
 </div>
+
+<div class="row">
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Users</h5>
+                <p class="display-6">@Model.UserCount</p>
+                <p class="text-muted">Total registered users (placeholder if not implemented)</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Vehicles</h5>
+                <p class="display-6">@Model.VehicleCount</p>
+                <p class="text-muted">Total vehicles in the system</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Storage Sites</h5>
+                <p class="display-6">@Model.StorageSiteCount</p>
+                <p class="text-muted">Number of storage sites</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Total Storages</h5>
+                <p class="display-6">@Model.TotalStorages</p>
+                <p class="text-muted">Active + past storages</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-md-4 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h6 class="card-title">Temporary Storages</h6>
+                <p class="display-6">@Model.TemporaryStorages</p>
+                <p class="text-muted">Number of storages marked temporary</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h6 class="card-title">Active Storages</h6>
+                <p class="display-6">@Model.ActiveStorages</p>
+                <p class="text-muted">Storages with no end date or end date in future</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h6 class="card-title">Upcoming Tasks</h6>
+                <p class="display-6">0</p>
+                <p class="text-muted">Placeholder: implement queries for upcoming MOTs or maintenance tasks</p>
+            </div>
+        </div>
+    </div>
+</div>
+
