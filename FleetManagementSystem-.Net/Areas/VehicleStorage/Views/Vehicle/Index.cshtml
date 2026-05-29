@@ -12,6 +12,7 @@
     <thead class="table-light">
         <tr>
             <th>Id</th>
+            <th>Registration</th>
             <th>Make</th>
             <th>Model</th>
             <th>Fuel</th>
@@ -25,7 +26,7 @@
     <tbody>
         @if (Model == null || !Model.Any())
         {
-            <tr><td colspan="9" class="text-center text-muted">No vehicles found.</td></tr>
+            <tr><td colspan="10" class="text-center text-muted">No vehicles found.</td></tr>
         }
         else
         {
@@ -33,6 +34,7 @@
             {
                 <tr>
                     <td class="align-middle">@v.Id</td>
+                    <td class="align-middle">@v.RegistrationNumber</td>
                     <td class="align-middle">@v.Make</td>
                     <td class="align-middle">@v.Model</td>
                     <td class="align-middle">@v.FuelType</td>

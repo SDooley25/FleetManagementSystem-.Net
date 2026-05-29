@@ -1,0 +1,52 @@
+@model List<FleetManagementSystem_.Net.Models.VehicleStorage>
+@{
+    ViewData["Title"] = "Vehicle Storage";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>@ViewData["Title"]</h2>
+    <a class="btn btn-primary" asp-action="Edit">Create New</a>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Vehicle</th>
+            <th>Site</th>
+            <th>Storage Type</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th style="width:150px;">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    @if (Model == null || !Model.Any())
+    {
+        <tr>
+            <td colspan="6" class="text-center">No vehicle storage records found.</td>
+        </tr>
+    }
+    else
+    {
+        foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Vehicle.RegistrationNumber</td>
+                <td>@item.StorageSite.Name</td>
+                <td>@item.StorageType</td>
+                <td>@item.StartDate.ToString("yyyy-MM-dd")</td>
+                <td>@(item.EndDate?.ToString("yyyy-MM-dd") ?? "")</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary me-1">Edit</a>
+                    @await Html.PartialAsync("~/Views/Shared/_ConfirmPrompt.cshtml", new FleetManagementSystem_.Net.Models.ConfirmPromptModel {
+                        Message = $"Are you sure you want to delete vehicle storage for {item.Vehicle.RegistrationNumber} at {item.StorageSite.Name}?",
+                        Url = Url.Action("Delete", "Storage", new { area = "VehicleStorage", id = item.Id }),
+                        Method = "POST",
+                        ButtonText = "Delete"
+                    })
+                </td>
+            </tr>
+        }
+    }
+    </tbody>
+</table>

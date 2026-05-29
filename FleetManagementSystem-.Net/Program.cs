@@ -50,6 +50,7 @@ builder.Services.AddScoped<IUserStore<FMSUser>, FMSUserStore>();
 builder.Services.AddScoped<IRoleStore<FMSRole>, FMSRoleStore>();
 builder.Services.AddScoped<IStorageSiteRepository, StorageSiteRepository>();
 builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
+builder.Services.AddScoped<IVehicleStorageRepository, VehicleStorageRepository>();
 
 
 builder.Services.AddHttpContextAccessor();

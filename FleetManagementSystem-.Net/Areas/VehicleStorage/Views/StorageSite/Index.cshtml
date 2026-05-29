@@ -31,9 +31,10 @@
     <tbody>
     @foreach (var site in Model)
     {
+        // For address, only show first line (up to first newline) for compactness
         <tr>
             <td>@site.Name</td>
-            <td>@site.Address</td>
+            <td>@( (site.Address ?? string.Empty).Split(new[]{'\r','\n'}, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? string.Empty )</td> 
             <td>@site.Postcode</td>
             <td>@site.MaxVehicleCapacity</td>
             <td>@(site.HasRepairStation ? "Yes" : "No")</td>

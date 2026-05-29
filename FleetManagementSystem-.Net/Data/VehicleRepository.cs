@@ -38,6 +38,7 @@ namespace FleetManagementSystem_.Net.Data
             };
 
             command.AddParameterWithValue("Id", vehicle.Id);
+            command.AddParameterWithValue("RegistrationNumber", vehicle.RegistrationNumber);
             command.AddParameterWithValue("Make", vehicle.Make);
             command.AddParameterWithValue("Model", vehicle.Model);
             command.AddParameterWithValue("FuelType", vehicle.FuelType);
@@ -70,6 +71,7 @@ namespace FleetManagementSystem_.Net.Data
             };
 
             command.AddParameterWithValue("Id", vehicle.Id);
+            command.AddParameterWithValue("RegistrationNumber", vehicle.RegistrationNumber);
             command.AddParameterWithValue("Make", vehicle.Make);
             command.AddParameterWithValue("Model", vehicle.Model);
             command.AddParameterWithValue("FuelType", vehicle.FuelType);

@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/FleetManagementSystem_.Net.styles.css" asp-append-version="true" />
 </head>
-<body>
+<body data-mark-required-asterisk="true">
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
@@ -46,6 +46,7 @@
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" asp-area="VehicleStorage" asp-controller="StorageSite" asp-action="Index">Storage Sites</a></li>
                                 <li><a class="dropdown-item" asp-area="VehicleStorage" asp-controller="Vehicle" asp-action="Index">Vehicles</a></li>
+                                <li><a class="dropdown-item" asp-area="VehicleStorage" asp-controller="Storage" asp-action="Index">Storages</a></li>
                             </ul>
                         </li>
                     </ul>
