@@ -6,8 +6,9 @@ on:
       - main
 
 env:
-  ACR_NAME: fleetmanagementsystemreg                # e.g. myregistry (no .azurecr.io)
-  IMAGE_NAME: dotnet-app
+  ACR_NAME: FleetManagementSystemReg                # e.g. myregistry (no .azurecr.io)
+  ACR_LOGIN_SERVER: fleetmanagementsystemreg-dedhg9dmgdd5dqf3.azurecr.io
+  IMAGE_NAME: FleetManagementSystem
 
 jobs:
   build-test-push:
@@ -55,9 +56,9 @@ jobs:
       # 8. Build Docker image
       - name: Build Docker Image
         run: |
-          docker build -t $ACR_NAME.azurecr.io/$IMAGE_NAME:${{ github.sha }} .
+          docker build -t $ACR_LOGIN_SERVER/$IMAGE_NAME:${{ github.sha }} .
 
       # 9. Push Docker image to ACR
       - name: Push Docker Image
         run: |
-          docker push $ACR_NAME.azurecr.io/$IMAGE_NAME:${{ github.sha }}
+          docker push $ACR_LOGIN_SERVER/$IMAGE_NAME:${{ github.sha }}
