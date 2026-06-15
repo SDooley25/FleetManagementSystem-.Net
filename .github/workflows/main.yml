@@ -8,7 +8,7 @@ on:
 env:
   ACR_NAME: fleetmanagementsystem               # e.g. myregistry (no .azurecr.io)
   ACR_LOGIN_SERVER: fleetmanagementsystem.azurecr.io
-  IMAGE_NAME: FleetManagementSystem
+  IMAGE_NAME: fleetmanagementsystem
 
 jobs:
   build-test-push:
