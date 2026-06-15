@@ -18,7 +18,7 @@ COPY ["FleetManagementSystem-.Net.csproj", "./"]
 RUN dotnet restore "./FleetManagementSystem-.Net.csproj"
 COPY . .
 WORKDIR "/src/FleetManagementSystem-.Net"
-RUN dotnet build "./FleetManagementSystem-.Net.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "FleetManagementSystem-.Net.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
