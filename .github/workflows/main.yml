@@ -6,8 +6,8 @@ on:
       - main
 
 env:
-  ACR_NAME: FleetManagementSystemReg                # e.g. myregistry (no .azurecr.io)
-  ACR_LOGIN_SERVER: fleetmanagementsystemreg-dedhg9dmgdd5dqf3.azurecr.io
+  ACR_NAME: fleetmanagementsystem               # e.g. myregistry (no .azurecr.io)
+  ACR_LOGIN_SERVER: fleetmanagementsystem.azurecr.io
   IMAGE_NAME: FleetManagementSystem
 
 jobs:
