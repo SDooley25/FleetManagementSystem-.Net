@@ -51,7 +51,7 @@ jobs:
 
       # 7. Login to ACR
       - name: Login to ACR
-        run: az acr login --name $ACR_NAME
+        run: az acr login --name $ACR_LOGIN_SERVER
 
       # 8. Build Docker image
       - name: Build Docker Image
