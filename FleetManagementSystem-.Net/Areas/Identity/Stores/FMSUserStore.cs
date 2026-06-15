@@ -359,6 +359,11 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Stores
         public Task SetLockoutEndDateAsync(FMSUser user, DateTimeOffset? lockoutEnd, CancellationToken cancellationToken)
         {
             user.LockoutEnd = lockoutEnd;
+            // Ensure the LockoutEnabled flag is set when a future lockout is applied so UpdateAsync persists it.
+            if (lockoutEnd.HasValue && lockoutEnd.Value > DateTimeOffset.UtcNow)
+            {
+                user.LockoutEnabled = true;
+            }
             return Task.CompletedTask;
         }
 

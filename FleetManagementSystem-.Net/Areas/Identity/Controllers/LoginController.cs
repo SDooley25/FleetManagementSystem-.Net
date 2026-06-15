@@ -1,5 +1,8 @@
 ﻿using FleetManagementSystem_.Net.Areas.Identity.Models;
 using FleetManagementSystem_.Net.Areas.Identity.Models.ViewModels;
+using FleetManagementSystem_.Net.Areas.Identity.Services;
+using FleetManagementSystem_.Net.Models.Enums;
+using FleetManagementSystem_.Net.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -12,11 +15,19 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
     public class LoginController : Controller
     {
         private readonly SignInManager<FMSUser> _signInManager;
+        private readonly ICompromisedPasswordService _compromisedPasswordService;
+        private readonly IAlertService _alertService;
         private readonly ILogger<LoginController> _logger;
 
-        public LoginController(SignInManager<FMSUser> signInManager, ILogger<LoginController> logger)
+        public LoginController(
+            SignInManager<FMSUser> signInManager,
+            ICompromisedPasswordService compromisedPasswordService,
+            IAlertService alertService,
+            ILogger<LoginController> logger)
         {
             _signInManager = signInManager;
+            _compromisedPasswordService = compromisedPasswordService;
+            _alertService = alertService;
             _logger = logger;
         }
 
@@ -43,11 +54,18 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
                 model.Username ?? string.Empty,
                 model.Password ?? string.Empty,
                 model.RememberMe,
-                lockoutOnFailure: false);
+                lockoutOnFailure: true);
 
             if (result.Succeeded)
             {
                 _logger.LogInformation("{Username} logged in.", model.Username);
+
+                if (await _compromisedPasswordService.IsCompromisedAsync(model.Password ?? string.Empty))
+                {
+                    _alertService.AddAlert("Your password is on the compromised list. Reset it now.", AlertLevel.Warning);
+                    return RedirectToAction("Index", "Password", new { area = "Identity" });
+                }
+
                 if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
                 {
                     return Redirect(model.ReturnUrl);

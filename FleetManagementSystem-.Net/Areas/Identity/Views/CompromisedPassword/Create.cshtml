@@ -1,0 +1,17 @@
+
+@{
+    ViewData["Title"] = "Add Compromised Password";
+}
+
+<h2>Add Compromised Password</h2>
+
+<form asp-area="Identity" asp-controller="CompromisedPassword" asp-action="Create" method="post">
+    <div class="form-group mb-3">
+        <label for="Password">Plain Password</label>
+        <input type="text" class="form-control" id="Password" name="Password" />
+        <small class="form-text text-muted">Enter the plain password to be hashed and added to the compromised list.</small>
+    </div>
+    <button type="submit" class="btn btn-primary">Add</button>
+    <a asp-area="Identity" asp-controller="CompromisedPassword" asp-action="Index" class="btn btn-secondary">Back</a>
+</form>
+

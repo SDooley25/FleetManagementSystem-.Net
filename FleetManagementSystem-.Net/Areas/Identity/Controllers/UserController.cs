@@ -126,8 +126,18 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
                     LockoutEnd = ParseLockoutEnd(model.LockoutEndLocal),
                     EmailConfirmed = true //no access to email server so auto confirm
                 };
-                
-                var createResult = await _userManager.CreateAsync(newUser);
+
+                IdentityResult createResult;
+                if (changedPassword)
+                {
+                    // Use CreateAsync with password so UserManager runs registered password validators automatically
+                    createResult = await _userManager.CreateAsync(newUser, model.Password);
+                }
+                else
+                {
+                    createResult = await _userManager.CreateAsync(newUser);
+                }
+
                 if (!createResult.Succeeded)
                 {
                     foreach (var err in createResult.Errors)
@@ -145,11 +155,6 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
                         IsSelected = model.SelectedRoles != null && model.SelectedRoles.Contains(r.Name)
                     }).ToList();
                     return View(model);
-                }
-
-                if (changedPassword)
-                {
-                    await _userManager.AddPasswordAsync(newUser, model.Password);
                 }
 
                 // handle roles
@@ -197,7 +202,27 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
                 if (changedPassword)
                 {
                     var token = await _userManager.GeneratePasswordResetTokenAsync(existing);
-                    await _userManager.ResetPasswordAsync(existing, token,model.Password);
+                    var resetResult = await _userManager.ResetPasswordAsync(existing, token, model.Password);
+                    if (!resetResult.Succeeded)
+                    {
+                        foreach (var err in resetResult.Errors)
+                        {
+                            ModelState.AddModelError(string.Empty, err.Description);
+                        }
+
+                        _alertService.AddAlert("Failed to update user.", AlertLevel.Error);
+                        // reload roles for redisplay
+                        var rolesAll = _roleManager.Roles.ToList();
+                        model.Roles = rolesAll.Select(r => new UserEditViewModel.RoleCheckbox
+                        {
+                            Id = r.Id,
+                            Name = r.Name,
+                            Description = r.Description,
+                            IsSelected = model.SelectedRoles != null && model.SelectedRoles.Contains(r.Name)
+                        }).ToList();
+
+                        return View(model);
+                    }
                 }
 
                 // update roles membership

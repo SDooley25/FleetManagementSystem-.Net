@@ -1,0 +1,41 @@
+@model List<FleetManagementSystem_.Net.Areas.Identity.Models.CompromisedPassword>
+
+@{
+    ViewData["Title"] = "Compromised Passwords";
+}
+
+<h2>Compromised Passwords</h2>
+
+<p>
+    <a class="btn btn-primary" asp-area="Identity" asp-controller="CompromisedPassword" asp-action="Create">Add Compromised Password</a>
+</p>
+
+<p>Total compromised passwords: @ViewBag.Count</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Hash</th>
+            <th>Date Added</th>
+            @* <th></th> *@
+        </tr>
+    </thead>
+    <tbody>
+@foreach(var item in Model ?? new List<FleetManagementSystem_.Net.Areas.Identity.Models.CompromisedPassword>())
+{
+        <tr>
+            <td>@item.Id</td>
+            <td>@item.PasswordHash</td>
+            <td>@item.DateAdded</td>
+            @* <td>
+                <form asp-area="Identity" asp-controller="CompromisedPassword" asp-action="Delete" method="post" style="display:inline">
+                    <input type="hidden" name="id" value="@item.Id" />
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this entry?');">Delete</button>
+                </form>
+            </td> *@
+        </tr>
+}
+    </tbody>
+</table>
+

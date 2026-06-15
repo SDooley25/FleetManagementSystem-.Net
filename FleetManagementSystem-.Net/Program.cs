@@ -1,5 +1,6 @@
 using FleetManagementSystem_.Net.Areas.Identity.Models;
 using FleetManagementSystem_.Net.Areas.Identity.Stores;
+using FleetManagementSystem_.Net.Areas.Identity.Services;
 using FleetManagementSystem_.Net.Data;
 using FleetManagementSystem_.Net.Middleware;
 using FleetManagementSystem_.Net.Services;
@@ -11,7 +12,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddIdentity<FMSUser,FMSRole>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddIdentity<FMSUser,FMSRole>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = true;
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(1);
+    options.Lockout.MaxFailedAccessAttempts = 2;
+    options.Lockout.AllowedForNewUsers = true;
+})
     .AddUserStore<FMSUserStore>()
     .AddRoleStore<FMSRoleStore>()
     .AddRoleManager<RoleManager<FMSRole>>()
@@ -51,6 +58,12 @@ builder.Services.AddScoped<IRoleStore<FMSRole>, FMSRoleStore>();
 builder.Services.AddScoped<IStorageSiteRepository, StorageSiteRepository>();
 builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
 builder.Services.AddScoped<IVehicleStorageRepository, VehicleStorageRepository>();
+
+
+// Compromised password list services
+builder.Services.AddScoped<CompromisedPasswordRepository>();
+builder.Services.AddScoped<ICompromisedPasswordService, CompromisedPasswordService>();
+builder.Services.AddTransient<IPasswordValidator<FMSUser>, CompromisedPasswordValidator>();
 
 
 builder.Services.AddHttpContextAccessor();
