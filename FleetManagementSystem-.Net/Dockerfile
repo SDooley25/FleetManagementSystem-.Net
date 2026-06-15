@@ -14,7 +14,8 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 #COPY ["FleetManagementSystem-.Net/FleetManagementSystem-.Net.csproj", "FleetManagementSystem-.Net/"]
 COPY ["FleetManagementSystem-.Net.csproj", "./"]
-RUN dotnet restore "./FleetManagementSystem-.Net/FleetManagementSystem-.Net.csproj"
+#RUN dotnet restore "./FleetManagementSystem-.Net/FleetManagementSystem-.Net.csproj"
+RUN dotnet restore "./FleetManagementSystem-.Net.csproj"
 COPY . .
 WORKDIR "/src/FleetManagementSystem-.Net"
 RUN dotnet build "./FleetManagementSystem-.Net.csproj" -c $BUILD_CONFIGURATION -o /app/build
