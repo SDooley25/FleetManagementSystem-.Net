@@ -49,9 +49,11 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - run: az acr check-health -n $ACR_NAME --yes
+
       # 7. Login to ACR
       - name: Login to ACR
-        run: az acr login --name $ACR_LOGIN_SERVER
+        run: az acr login --name $ACR_NAME
 
       # 8. Build Docker image
       - name: Build Docker Image
