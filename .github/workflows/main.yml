@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  ACR_NAME: fleetmanagementsystemreg-dedhg9dmgdd5dqf3                 # e.g. myregistry (no .azurecr.io)
+  ACR_NAME: fleetmanagementsystemreg                # e.g. myregistry (no .azurecr.io)
   IMAGE_NAME: dotnet-app
 
 jobs:
