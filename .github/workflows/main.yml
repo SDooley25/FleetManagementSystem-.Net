@@ -56,9 +56,13 @@ jobs:
         run: az acr login --name $ACR_NAME
 
       # 8. Build Docker image
+      
       - name: Build Docker Image
         run: |
-          docker build -t $ACR_LOGIN_SERVER/$IMAGE_NAME:${{ github.sha }} .
+          docker build \
+            -f FleetManagementSystem-.Net/Dockerfile \
+            -t $ACR_LOGIN_SERVER/$IMAGE_NAME:${{ github.sha }} \
+            FleetManagementSystem-.Net
 
       # 9. Push Docker image to ACR
       - name: Push Docker Image
