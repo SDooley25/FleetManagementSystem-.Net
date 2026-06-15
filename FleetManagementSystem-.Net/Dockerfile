@@ -12,7 +12,8 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["FleetManagementSystem-.Net/FleetManagementSystem-.Net.csproj", "FleetManagementSystem-.Net/"]
+#COPY ["FleetManagementSystem-.Net/FleetManagementSystem-.Net.csproj", "FleetManagementSystem-.Net/"]
+COPY ["FleetManagementSystem-.Net.csproj", "./"]
 RUN dotnet restore "./FleetManagementSystem-.Net/FleetManagementSystem-.Net.csproj"
 COPY . .
 WORKDIR "/src/FleetManagementSystem-.Net"
