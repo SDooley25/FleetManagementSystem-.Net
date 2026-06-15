@@ -1,0 +1,63 @@
+name: Build, Test, and Push to ACR
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  ACR_NAME: fleetmanagementsystemreg-dedhg9dmgdd5dqf3                 # e.g. myregistry (no .azurecr.io)
+  IMAGE_NAME: dotnet-app
+
+jobs:
+  build-test-push:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write   # REQUIRED for Managed Identity (OIDC)
+      contents: read
+
+    steps:
+      # 1. Checkout code
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. Setup .NET
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      # 3. Restore dependencies
+      - name: Restore dependencies
+        run: dotnet restore
+
+      # 4. Build solution
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+
+      # 5. Run unit tests ✅
+      - name: Test
+        run: dotnet test --no-build --verbosity normal
+
+      # 6. Azure login using Managed Identity (OIDC)
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # 7. Login to ACR
+      - name: Login to ACR
+        run: az acr login --name $ACR_NAME
+
+      # 8. Build Docker image
+      - name: Build Docker Image
+        run: |
+          docker build -t $ACR_NAME.azurecr.io/$IMAGE_NAME:${{ github.sha }} .
+
+      # 9. Push Docker image to ACR
+      - name: Push Docker Image
+        run: |
+          docker push $ACR_NAME.azurecr.io/$IMAGE_NAME:${{ github.sha }}
