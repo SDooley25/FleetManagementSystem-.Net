@@ -80,5 +80,5 @@ jobs:
             az webapp config container set \
               --name FleetManagementSystem \
               --resource-group Fleet-Management-System \
-              --docker-custom-image-name $ACR_LOGIN_SERVER/$IMAGE_NAME:${{ github.sha }}
+              --container-image-name $ACR_LOGIN_SERVER/$IMAGE_NAME:${{ github.sha }}
       
