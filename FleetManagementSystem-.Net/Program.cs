@@ -15,8 +15,8 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddIdentity<FMSUser,FMSRole>(options =>
 {
     options.SignIn.RequireConfirmedAccount = true;
-    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(1);
-    options.Lockout.MaxFailedAccessAttempts = 2;
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+    options.Lockout.MaxFailedAccessAttempts = 5;
     options.Lockout.AllowedForNewUsers = true;
 })
     .AddUserStore<FMSUserStore>()
@@ -79,8 +79,6 @@ builder.Services.AddSession(options =>
 
 var app = builder.Build();
 
-app.UseSQLExceptionHandlerMiddleware();
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -92,6 +90,8 @@ else
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+app.UseSQLExceptionHandlerMiddleware();
 
 app.UseHttpsRedirection();
 app.UseRouting();

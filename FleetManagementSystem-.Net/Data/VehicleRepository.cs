@@ -140,6 +140,8 @@ namespace FleetManagementSystem_.Net.Data
             };
             command.PrepareCommand();
 
+            throw new Exception("Connection Timeout expired: The connection to the database has timed out. Please check your network connection and try again.");
+
             await using var reader = await command.ExecuteReaderAsync(cancellationToken);
             var list = Vehicle.GetListColumns(reader);
             return list;
