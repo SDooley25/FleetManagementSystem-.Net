@@ -68,3 +68,9 @@ jobs:
       - name: Push Docker Image
         run: |
           docker push $ACR_LOGIN_SERVER/$IMAGE_NAME:${{ github.sha }}
+          
+      - name: Deploy to App Service
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: FleetManagementSystem
+          images: ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
