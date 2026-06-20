@@ -19,30 +19,39 @@ jobs:
       contents: read
 
     steps:
-      # 1. Checkout code
+      # Checkout code
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2. Setup .NET
+      # Setup .NET
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
           include-prerelease: true
 
-      # 3. Restore dependencies
+      # Restore dependencies
       - name: Restore dependencies
         run: dotnet restore
 
-      # 4. Build solution
+      # Build solution
       - name: Build
         run: dotnet build --no-restore --configuration Release
 
-      # 5. Run unit tests ✅
+      # Run unit tests ✅      
       - name: Test
-        run: dotnet test --configuration Release --no-build --verbosity normal
+        run: dotnet test --no-build --configuration Release --logger "trx;LogFileName=test-results.trx"
 
-      # 6. Azure login using Managed Identity (OIDC)
+      - name: Publish Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Unit Test Results
+          path: '**/test-results.trx'
+          reporter: dotnet-trx
+
+
+      # Azure login using Managed Identity (OIDC)
       - name: Azure Login
         uses: azure/login@v2
         with:
@@ -52,12 +61,11 @@ jobs:
 
       - run: az acr check-health -n $ACR_NAME --yes
 
-      # 7. Login to ACR
+      # Login to ACR
       - name: Login to ACR
         run: az acr login --name $ACR_NAME
 
-      # 8. Build Docker image
-      
+      # Build Docker image
       - name: Build Docker Image
         run: |
           docker build \
@@ -65,17 +73,12 @@ jobs:
             -t $ACR_LOGIN_SERVER/$IMAGE_NAME:${{ github.sha }} \
             FleetManagementSystem-.Net
 
-      # 9. Push Docker image to ACR
+      # Push Docker image to ACR
       - name: Push Docker Image
         run: |
           docker push $ACR_LOGIN_SERVER/$IMAGE_NAME:${{ github.sha }}
           
-      #- name: Deploy to App Service
-       # uses: azure/webapps-deploy@v2
-        #with:
-         # app-name: FleetManagementSystem
-          #images: ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-
+      # Update App Service Config to Deploy Container
       - name: Update container config
         run: |
             az webapp config container set \
