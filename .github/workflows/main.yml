@@ -40,7 +40,7 @@ jobs:
 
       # 5. Run unit tests ✅
       - name: Test
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test --configuration Release --no-build --verbosity normal
 
       # 6. Azure login using Managed Identity (OIDC)
       - name: Azure Login
