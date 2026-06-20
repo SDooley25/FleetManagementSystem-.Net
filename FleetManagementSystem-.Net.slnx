@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="FleetManagementSystem-.Net.UnitTests/FleetManagementSystem-.Net.UnitTests.csproj" Id="f4f4d8a3-3d69-4f6c-950c-4459e1f40602" />
   <Project Path="FleetManagementSystem-.Net/FleetManagementSystem-.Net.csproj" />
 </Solution>

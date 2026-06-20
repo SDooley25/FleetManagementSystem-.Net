@@ -13,10 +13,10 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Services
 
     public class CompromisedPasswordService : ICompromisedPasswordService
     {
-        private readonly CompromisedPasswordRepository _repo;
+        private readonly ICompromisedPasswordRepository _repo;
         private readonly ILogger<CompromisedPasswordService> _logger;
 
-        public CompromisedPasswordService(CompromisedPasswordRepository repo, ILogger<CompromisedPasswordService> logger)
+        public CompromisedPasswordService(ICompromisedPasswordRepository repo, ILogger<CompromisedPasswordService> logger)
         {
             _repo = repo;
             _logger = logger;

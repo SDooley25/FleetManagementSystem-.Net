@@ -11,10 +11,10 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
     [Authorize(Roles = "SuperAdmin")]
     public class CompromisedPasswordController : Controller
     {
-        private readonly CompromisedPasswordRepository _repo;
+        private readonly ICompromisedPasswordRepository _repo;
         private readonly ILogger<CompromisedPasswordController> _logger;
 
-        public CompromisedPasswordController(CompromisedPasswordRepository repo, ILogger<CompromisedPasswordController> logger)
+        public CompromisedPasswordController(ICompromisedPasswordRepository repo, ILogger<CompromisedPasswordController> logger)
         {
             _repo = repo;
             _logger = logger;

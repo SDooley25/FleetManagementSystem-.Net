@@ -5,7 +5,15 @@ using System.Data;
 
 namespace FleetManagementSystem_.Net.Areas.Identity.Stores
 {
-    public class CompromisedPasswordRepository
+    public interface ICompromisedPasswordRepository
+    {
+        Task<Guid> CreateAsync(CompromisedPassword item, CancellationToken cancellationToken = default);
+        Task<int> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<List<CompromisedPassword>> GetAllAsync(CancellationToken cancellationToken = default);
+        Task<List<CompromisedPassword>> FindByHashPrefixAsync(string prefix, CancellationToken cancellationToken = default);
+    }
+
+    public class CompromisedPasswordRepository : ICompromisedPasswordRepository
     {
         private readonly string _connString;
         private readonly ILogger<CompromisedPasswordRepository> _logger;
