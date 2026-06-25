@@ -12,13 +12,15 @@ namespace FleetManagementSystem_.Net.Areas.VehicleStorage.Controllers
     public class VehicleController : Controller
     {
         private readonly IVehicleRepository _repository;
+        private readonly IVehicleStorageRepository _vehicleStorageRepository;
         private readonly ILogger<VehicleController> _logger;
         private readonly IAlertService _alertService;
         private const string SessionKey = "Vehicle.Id";
 
-        public VehicleController(IVehicleRepository repository, ILogger<VehicleController> logger, IAlertService alertService)
+        public VehicleController(IVehicleRepository repository, IVehicleStorageRepository vehicleStorageRepository, ILogger<VehicleController> logger, IAlertService alertService)
         {
             _repository = repository;
+            _vehicleStorageRepository = vehicleStorageRepository;
             _logger = logger;
             _alertService = alertService;
         }
@@ -113,6 +115,13 @@ namespace FleetManagementSystem_.Net.Areas.VehicleStorage.Controllers
             if (v == null)
             {
                 return NotFound();
+            }
+
+            var storageEntries = await _vehicleStorageRepository.GetByVehicleAsync(v.Id, cancellationToken);
+            if (storageEntries.Any())
+            {
+                _alertService.AddAlert($"Vehicle '{v.RegistrationNumber}' cannot be deleted because it is used in vehicle storage.", AlertLevel.Error);
+                return RedirectToAction(nameof(Index));
             }
 
             var deleted = await _repository.DeleteAsync(v, cancellationToken);

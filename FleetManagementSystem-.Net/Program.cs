@@ -61,7 +61,7 @@ builder.Services.AddScoped<IVehicleStorageRepository, VehicleStorageRepository>(
 
 
 // Compromised password list services
-    builder.Services.AddScoped<ICompromisedPasswordRepository, CompromisedPasswordRepository>();
+builder.Services.AddScoped<ICompromisedPasswordRepository, CompromisedPasswordRepository>();
 builder.Services.AddScoped<ICompromisedPasswordService, CompromisedPasswordService>();
 builder.Services.AddTransient<IPasswordValidator<FMSUser>, CompromisedPasswordValidator>();
 

@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography;
 using System.Text;
+using FleetManagementSystem_.Net.Models.Enums;
+using FleetManagementSystem_.Net.Services;
 
 namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
 {
@@ -13,11 +15,13 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
     {
         private readonly ICompromisedPasswordRepository _repo;
         private readonly ILogger<CompromisedPasswordController> _logger;
+        private readonly IAlertService _alertService;
 
-        public CompromisedPasswordController(ICompromisedPasswordRepository repo, ILogger<CompromisedPasswordController> logger)
+        public CompromisedPasswordController(ICompromisedPasswordRepository repo, ILogger<CompromisedPasswordController> logger, IAlertService alertService)
         {
             _repo = repo;
             _logger = logger;
+            _alertService = alertService;
         }
 
         // GET: /Identity/CompromisedPassword
@@ -56,7 +60,7 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
                 };
 
                 await _repo.CreateAsync(item);
-                TempData["Alert"] = "Compromised password added.";
+                _alertService.AddAlert("Compromised password added.", AlertLevel.Success);
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
@@ -79,14 +83,18 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
             {
                 var rows = await _repo.DeleteAsync(id);
                 if (rows > 0)
-                    TempData["Alert"] = "Compromised password removed.";
+                {
+                    _alertService.AddAlert("Compromised password removed.", AlertLevel.Success);
+                }
                 else
-                    TempData["Alert"] = "No record removed.";
+                {
+                    _alertService.AddAlert("No record removed.", AlertLevel.Error);
+                }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deleting compromised password {Id}", id);
-                TempData["Alert"] = "Error deleting record.";
+                _alertService.AddAlert("Error deleting record.", AlertLevel.Error);
             }
 
             return RedirectToAction(nameof(Index));

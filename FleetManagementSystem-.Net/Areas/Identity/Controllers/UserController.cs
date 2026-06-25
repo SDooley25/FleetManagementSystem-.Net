@@ -263,6 +263,20 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
                 return NotFound();
             }
 
+            var roles = await _userManager.GetRolesAsync(existing);
+            foreach (var role in roles)
+            {
+                if (!string.IsNullOrEmpty(role))
+                {
+                    var removeResult = await _userManager.RemoveFromRoleAsync(existing, role);
+                    if (!removeResult.Succeeded)
+                    {
+                        _alertService.AddAlert("Failed to remove user roles before deletion.", AlertLevel.Error);
+                        return RedirectToAction(nameof(Index));
+                    }
+                }
+            }
+
             var result = await _userManager.DeleteAsync(existing);
             if (!result.Succeeded)
             {

@@ -24,17 +24,24 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Models
             
         }
 
-        public FMSUser(SqlDataReader dataReader, bool isList=false)
+        public FMSUser(SqlDataReader dataReader, bool isList=false, bool isUserRole=false)
         {
-            GetColumns(dataReader, isList);
+            GetColumns(dataReader, isList, isUserRole);
         }
-        public void GetColumns(SqlDataReader dataReader, bool isList=false)
+        public void GetColumns(SqlDataReader dataReader, bool isList=false, bool isUserRole= false)
         {
             if (!isList)
             {
                 dataReader.Read();
             }
-            Id = dataReader.Get<Guid>("Id");
+            if (isUserRole) // if returned from a user role operation
+            {
+                Id=dataReader.Get<Guid>("UserId");
+            }
+            else
+            {
+                Id = dataReader.Get<Guid>("Id");
+            }
             UserName = dataReader.Get<string>("UserName");
             NormalizedUserName = dataReader.Get<string>("NormalizedUserName");
             Email = dataReader.Get<string>("Email");
@@ -46,12 +53,12 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Models
             AccessFailedCount = dataReader.Get<int>("AccessFailedCount");
         }
 
-        public static List<FMSUser> GetListColumns(SqlDataReader dataReader)
+        public static List<FMSUser> GetListColumns(SqlDataReader dataReader,bool isUserRole=false)
         {
             List<FMSUser> list = new List<FMSUser>();
             while (dataReader.Read())
             {
-                FMSUser item = new FMSUser(dataReader,true);
+                FMSUser item = new FMSUser(dataReader,true,isUserRole);
                 list.Add(item);
             }
             return list;

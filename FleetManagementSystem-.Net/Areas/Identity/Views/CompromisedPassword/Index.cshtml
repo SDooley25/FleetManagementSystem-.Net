@@ -1,3 +1,4 @@
+@using FleetManagementSystem_.Net.Models
 @model List<FleetManagementSystem_.Net.Areas.Identity.Models.CompromisedPassword>
 
 @{
@@ -28,12 +29,10 @@
             <td>@item.Id</td>
             <td>@item.PasswordHash</td>
             <td>@item.DateAdded</td>
-            @* <td>
-                <form asp-area="Identity" asp-controller="CompromisedPassword" asp-action="Delete" method="post" style="display:inline">
-                    <input type="hidden" name="id" value="@item.Id" />
-                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this entry?');">Delete</button>
-                </form>
-            </td> *@
+            <td>
+                @{ var confirmModel = new ConfirmPromptModel { Message = "Delete this compromised password entry? This action cannot be undone.", Url = Url.Action("Delete", "CompromisedPassword", new { area = "Identity", id = item.Id }), Method = "POST", ButtonText = "Delete" }; }
+                <partial name="_ConfirmPrompt" model="confirmModel" />
+            </td>
         </tr>
 }
     </tbody>

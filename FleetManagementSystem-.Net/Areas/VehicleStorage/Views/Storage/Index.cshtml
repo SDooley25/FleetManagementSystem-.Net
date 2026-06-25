@@ -1,3 +1,4 @@
+@using FleetManagementSystem_.Net.Extensions
 @model List<FleetManagementSystem_.Net.Models.VehicleStorage>
 @{
     ViewData["Title"] = "Vehicle Storage";
@@ -38,7 +39,7 @@
                 <td>@(item.EndDate?.ToString("yyyy-MM-dd") ?? "")</td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary me-1">Edit</a>
-                    @if (User.IsInRole("VehicleStorage.Admin"))
+                    @if (User.IsInRoleLike("VehicleStorage.Admin"))
                     {
                         var confirmModel = new FleetManagementSystem_.Net.Models.ConfirmPromptModel {
                             Message = $"Are you sure you want to delete vehicle storage for {item.Vehicle.RegistrationNumber} at {item.StorageSite.Name}?",

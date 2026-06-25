@@ -333,6 +333,13 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Stores
             cancellationToken.ThrowIfCancellationRequested();
 
             _logger.LogInformation("GetUsersInRole - RoleName: {RoleName}", roleName);
+
+            var role = await _roleManager.FindByNameAsync(roleName);
+            if (role == null)
+            {
+                return new List<FMSUser>();
+            }
+
             using var connection = new SqlConnection(_connString);
             await connection.OpenAsync();
 
@@ -341,12 +348,11 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Stores
                 CommandType = CommandType.StoredProcedure
             };
 
-            // Stored proc expects role identifier; many systems accept role name here as well.
-            command.AddParameterWithValue("RoleName", roleName);
+            command.AddParameterWithValue("RoleId", role.Id);
             command.PrepareCommand();
 
             using var reader = await command.ExecuteReaderAsync();
-            var users = FMSUser.GetListColumns(reader);
+            var users = FMSUser.GetListColumns(reader,true);
             return users;
         }
 

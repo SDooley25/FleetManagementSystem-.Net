@@ -174,7 +174,7 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Stores
 
             await using var reader = await command.ExecuteReaderAsync(cancellationToken);
 
-            if (await reader.ReadAsync(cancellationToken))
+            if (reader.HasRows)
             {
                 var role = new FMSRole(reader);               
                 return role;

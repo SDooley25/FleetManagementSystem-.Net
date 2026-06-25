@@ -1,4 +1,6 @@
-@model List<FleetManagementSystem_.Net.Models.Vehicle>
+@using FleetManagementSystem_.Net.Extensions
+@using FleetManagementSystem_.Net.Models
+@model List<Vehicle>
 @{
     ViewData["Title"] = "Vehicles";
 }
@@ -44,10 +46,10 @@
                     <td class="align-middle">@(v.LastMotMileage.HasValue? v.LastMotMileage.ToString() : "—")</td>
                     <td class="align-middle">
                         <a asp-area="VehicleStorage" asp-controller="Vehicle" asp-action="Edit" asp-route-id="@v.Id" class="btn btn-sm btn-outline-primary me-1">Edit</a>
-                        @if (User.IsInRole("VehicleStorage.Admin"))
+                        @if (User.IsInRoleLike("VehicleStorage.Admin"))
                         {
-                            var confirmModel = new FleetManagementSystem_.Net.Models.ConfirmPromptModel { Message = $"Delete vehicle {v.Make} {v.Model}? This action cannot be undone.", Url = Url.Action("Delete","Vehicle", new { area = "VehicleStorage", id = v.Id }), Method = "POST", ButtonText = "Delete" };
-                            @await Html.PartialAsync("_ConfirmPrompt", confirmModel)
+                            var confirmModel = new ConfirmPromptModel { Message = $"Delete vehicle {v.Make} {v.Model}? This action cannot be undone.", Url = Url.Action("Delete", "Vehicle", new { area = "VehicleStorage", id = v.Id }), Method = "POST", ButtonText = "Delete" };
+                            <partial name="_ConfirmPrompt" model="confirmModel" />
                         }
                     </td>
                 </tr>

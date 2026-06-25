@@ -4,8 +4,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using FleetManagementSystem_.Net.Areas.Identity.Models;
+using FleetManagementSystem_.Net.Models.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
+using FleetManagementSystem_.Net.Services;
 
 namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
 {
@@ -14,10 +16,14 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
     public class RoleController : Controller
     {
         private readonly RoleManager<FMSRole> _roleManager;
+        private readonly UserManager<FMSUser> _userManager;
+        private readonly IAlertService _alertService;
 
-        public RoleController(RoleManager<FMSRole> roleManager)
+        public RoleController(RoleManager<FMSRole> roleManager, UserManager<FMSUser> userManager, IAlertService alertService)
         {
             _roleManager = roleManager;
+            _userManager = userManager;
+            _alertService = alertService;
         }
 
         // GET: /Identity/Role
@@ -106,6 +112,38 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
                 }
                 return View(model);
             }
+        }
+
+        // POST: /Identity/Role/Delete/{id}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return BadRequest();
+
+            var existing = await _roleManager.FindByIdAsync(id);
+            if (existing == null)
+            {
+                return NotFound();
+            }
+
+            var usersInRole = await _userManager.GetUsersInRoleAsync(existing.Name!);
+            if (usersInRole.Any())
+            {
+                _alertService.AddAlert($"Role '{existing.Name}' cannot be deleted because it is assigned to one or more users.", AlertLevel.Error);
+                return RedirectToAction(nameof(Index));
+            }
+
+            var result = await _roleManager.DeleteAsync(existing);
+            if (!result.Succeeded)
+            {
+                _alertService.AddAlert($"Failed to delete role '{existing.Name}'.", AlertLevel.Error);
+                return RedirectToAction(nameof(Index));
+            }
+
+            _alertService.AddAlert("Role deleted successfully.", AlertLevel.Success);
+            return RedirectToAction(nameof(Index));
         }
     }
 }

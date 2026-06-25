@@ -12,6 +12,7 @@ namespace FleetManagementSystem_.Net.Data
         Task<bool> DeleteAsync(Vehicle vehicle, CancellationToken cancellationToken);
         Task<Vehicle?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
         Task<List<Vehicle>> GetAllAsync(CancellationToken cancellationToken);
+        Task<List<Vehicle>> GetUpcomingMotAsync(CancellationToken cancellationToken);
     }
 
     public class VehicleRepository : IVehicleRepository
@@ -135,6 +136,24 @@ namespace FleetManagementSystem_.Net.Data
             await connection.OpenAsync(cancellationToken);
 
             await using var command = new SqlCommand("slistVehicle", connection)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            command.PrepareCommand();
+
+            await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+            var list = Vehicle.GetListColumns(reader);
+            return list;
+        }
+
+        public async Task<List<Vehicle>> GetUpcomingMotAsync(CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            _logger.LogInformation("GetUpcomingMot Vehicles");
+            await using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync(cancellationToken);
+
+            await using var command = new SqlCommand("sVehicleUpComingMOT", connection)
             {
                 CommandType = CommandType.StoredProcedure
             };

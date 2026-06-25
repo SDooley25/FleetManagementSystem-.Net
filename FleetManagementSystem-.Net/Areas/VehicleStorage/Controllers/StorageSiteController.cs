@@ -13,13 +13,15 @@ namespace FleetManagementSystem_.Net.Areas.VehicleStorage.Controllers
     public class StorageSiteController : Controller
     {
         private readonly IStorageSiteRepository _repository;
+        private readonly IVehicleStorageRepository _vehicleStorageRepository;
         private readonly ILogger<StorageSiteController> _logger;
         private readonly IAlertService _alertService;
         private const string SessionKey = "StorageSite.Id";
 
-        public StorageSiteController(IStorageSiteRepository repository, ILogger<StorageSiteController> logger, IAlertService alertService)
+        public StorageSiteController(IStorageSiteRepository repository, IVehicleStorageRepository vehicleStorageRepository, ILogger<StorageSiteController> logger, IAlertService alertService)
         {
             _repository = repository;
+            _vehicleStorageRepository = vehicleStorageRepository;
             _logger = logger;
             _alertService = alertService;
         }
@@ -118,6 +120,13 @@ namespace FleetManagementSystem_.Net.Areas.VehicleStorage.Controllers
             if (site == null)
             {
                 return NotFound();
+            }
+
+            var storageEntries = await _vehicleStorageRepository.GetBySiteAsync(site.Id, cancellationToken);
+            if (storageEntries.Any())
+            {
+                _alertService.AddAlert($"Storage site '{site.Name}' cannot be deleted because it is used in vehicle storage.", AlertLevel.Error);
+                return RedirectToAction(nameof(Index));
             }
 
             var deleted = await _repository.DeleteAsync(site, cancellationToken);

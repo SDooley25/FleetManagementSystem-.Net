@@ -73,6 +73,16 @@ namespace FleetManagementSystem_.Net.Controllers
                 model.ActiveStorages = 0;
             }
 
+            try
+            {
+                var upcomingMots = await _vehicleRepository.GetUpcomingMotAsync(cancellationToken);
+                model.UpcomingMotCount = upcomingMots?.Count ?? 0;
+            }
+            catch
+            {
+                model.UpcomingMotCount = 0;
+            }
+
             return View(model);
         }
         // Disabled: make Privacy inaccessible by requiring a non-existent role
