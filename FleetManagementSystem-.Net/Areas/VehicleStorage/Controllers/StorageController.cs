@@ -36,15 +36,15 @@ namespace FleetManagementSystem_.Net.Areas.VehicleStorage.Controllers
 
         public async Task<IActionResult> Edit(Guid? id, CancellationToken cancellationToken)
         {
-            VehicleStorageEditViewModel vm;
+            VehicleStorageEditViewModel viewModel;
             if (id == null || id == Guid.Empty)
             {
-                vm = new VehicleStorageEditViewModel { Id = Guid.NewGuid(), StartDate = DateTime.Today };
+                viewModel = new VehicleStorageEditViewModel { Id = Guid.NewGuid(), StartDate = DateTime.Today };
             }
             else
             {
                 var item = await _repository.GetByIdAsync(id.Value, cancellationToken) ?? new Models.VehicleStorage { Id = id.Value };
-                vm = new VehicleStorageEditViewModel
+                viewModel = new VehicleStorageEditViewModel
                 {
                     Id = item.Id,
                     VehicleId = item.Vehicle?.Id ?? Guid.Empty,
@@ -56,12 +56,12 @@ namespace FleetManagementSystem_.Net.Areas.VehicleStorage.Controllers
                 };
             }
 
-            HttpContext.Session.SetString(SessionKey, vm.Id.ToString());
+            HttpContext.Session.SetString(SessionKey, viewModel.Id.ToString());
 
-            vm.Vehicles = await _vehicleRepo.GetAllAsync(cancellationToken);
-            vm.Sites = await _siteRepo.GetAllAsync(cancellationToken);
+            viewModel.Vehicles = await _vehicleRepo.GetAllAsync(cancellationToken);
+            viewModel.Sites = await _siteRepo.GetAllAsync(cancellationToken);
 
-            return View(vm);
+            return View(viewModel);
         }
 
         [HttpPost]
@@ -80,14 +80,7 @@ namespace FleetManagementSystem_.Net.Areas.VehicleStorage.Controllers
                 ModelState.AddModelError(string.Empty, "Session validation failed (ID mismatch).");
             }
 
-            if (!ModelState.IsValid)
-            {
-                model.Vehicles = await _vehicleRepo.GetAllAsync(cancellationToken);
-                model.Sites = await _siteRepo.GetAllAsync(cancellationToken);
-                return View(model);
-            }
-            // map viewmodel to domain model
-            var domain = new Models.VehicleStorage
+            var storage = new Models.VehicleStorage
             {
                 Id = model.Id,
                 Vehicle = new Vehicle { Id = model.VehicleId },
@@ -98,10 +91,23 @@ namespace FleetManagementSystem_.Net.Areas.VehicleStorage.Controllers
                 Note = model.Note
             };
 
+            var hasCapacity = await _repository.HasCapacityAvailableAsync(storage, cancellationToken);
+            if (!hasCapacity)
+            {
+                ModelState.AddModelError(string.Empty, "The selected storage site does not have enough capacity for the chosen date range.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                model.Vehicles = await _vehicleRepo.GetAllAsync(cancellationToken);
+                model.Sites = await _siteRepo.GetAllAsync(cancellationToken);
+                return View(model);
+            }
+
             var existing = await _repository.GetByIdAsync(model.Id, cancellationToken);
             if (existing == null)
             {
-                var newId = await _repository.InsertAsync(domain, cancellationToken);
+                var newId = await _repository.InsertAsync(storage, cancellationToken);
                 if (newId == Guid.Empty)
                 {
                     ModelState.AddModelError(string.Empty, "Failed to create vehicle storage.");
@@ -113,7 +119,7 @@ namespace FleetManagementSystem_.Net.Areas.VehicleStorage.Controllers
             }
             else
             {
-                var success = await _repository.UpdateAsync(domain, cancellationToken);
+                var success = await _repository.UpdateAsync(storage, cancellationToken);
                 if (!success)
                 {
                     ModelState.AddModelError(string.Empty, "Failed to update vehicle storage.");

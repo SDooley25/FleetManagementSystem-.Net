@@ -34,8 +34,8 @@ namespace FleetManagementSystem_.Net.Areas.Identity.Controllers
         // GET: /Identity/Login
         public IActionResult Index(string? returnUrl = null)
         {
-            var vm = new LoginViewModel { ReturnUrl = returnUrl };
-            return View(vm);
+            var viewModel = new LoginViewModel { ReturnUrl = returnUrl };
+            return View(viewModel);
         }
 
         // POST: /Identity/Login

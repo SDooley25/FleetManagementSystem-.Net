@@ -5,6 +5,8 @@ using System.Data;
 
 namespace FleetManagementSystem_.Net.Data
 {
+    public sealed record VehicleStorageCapacityCheck(int VehicleCount, int MaxVehicleCapacity, DateTime CheckDate);
+
     public interface IVehicleStorageRepository
     {
         Task<Guid> InsertAsync(VehicleStorage item, CancellationToken cancellationToken);
@@ -14,6 +16,8 @@ namespace FleetManagementSystem_.Net.Data
         Task<List<VehicleStorage>> GetAllAsync(CancellationToken cancellationToken);
         Task<List<VehicleStorage>> GetByVehicleAsync(Guid vehicleId, CancellationToken cancellationToken);
         Task<List<VehicleStorage>> GetBySiteAsync(Guid siteId, CancellationToken cancellationToken);
+        Task<VehicleStorageCapacityCheck?> GetVehicleCountBySiteAndDateAsync(Guid siteId, DateTime checkDate, CancellationToken cancellationToken);
+        Task<bool> HasCapacityAvailableAsync(VehicleStorage item, CancellationToken cancellationToken);
 
     }
 
@@ -179,6 +183,52 @@ namespace FleetManagementSystem_.Net.Data
             return VehicleStorage.GetListColumns(reader);
         }
 
+        public virtual async Task<VehicleStorageCapacityCheck?> GetVehicleCountBySiteAndDateAsync(Guid siteId, DateTime checkDate, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            _logger.LogInformation("GetVehicleCountBySiteAndDate - SiteId: {SiteId} Date: {CheckDate}", siteId, checkDate.Date);
+            await using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync(cancellationToken);
 
+            await using var command = new SqlCommand("sVehicleCountBySiteAndDate", connection)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            command.AddParameterWithValue("SiteID", siteId);
+            command.AddParameterWithValue("CheckDate", checkDate.Date);
+            command.PrepareCommand();
+
+            await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+            if (!reader.HasRows || !await reader.ReadAsync(cancellationToken))
+            {
+                return null;
+            }
+
+            var vehicleCount = reader.Get<int>("VehicleCount");
+            var maxVehicleCapacity = reader.Get<int>("MaxVehicleCapacity");
+            var returnedDate = reader.Get<DateTime>("CheckDate");
+
+            return new VehicleStorageCapacityCheck(vehicleCount, maxVehicleCapacity, returnedDate);
+        }
+
+        public virtual async Task<bool> HasCapacityAvailableAsync(VehicleStorage item, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var startDate = item.StartDate.Date;
+            var endDate = item.EndDate?.Date ?? startDate;
+
+            for (var date = startDate; date <= endDate; date = date.AddDays(1))
+            {
+                var result = await GetVehicleCountBySiteAndDateAsync(item.StorageSite.Id, date, cancellationToken);
+                if (result == null || result.VehicleCount >= result.MaxVehicleCapacity)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 }

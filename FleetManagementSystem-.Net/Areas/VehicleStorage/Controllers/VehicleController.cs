@@ -34,19 +34,19 @@ namespace FleetManagementSystem_.Net.Areas.VehicleStorage.Controllers
         // GET: Edit (create if id null)
         public async Task<IActionResult> Edit(Guid? id, CancellationToken cancellationToken)
         {
-            Vehicle v;
+            Vehicle vehicle;
             if (id == null || id == Guid.Empty)
             {
-                v = new Vehicle { Id = Guid.NewGuid() };
+                vehicle = new Vehicle { Id = Guid.NewGuid() };
             }
             else
             {
-                v = await _repository.GetByIdAsync(id.Value, cancellationToken) ?? new Vehicle { Id = id.Value };
+                vehicle = await _repository.GetByIdAsync(id.Value, cancellationToken) ?? new Vehicle { Id = id.Value };
             }
 
-            HttpContext.Session.SetString(SessionKey, v.Id.ToString());
+            HttpContext.Session.SetString(SessionKey, vehicle.Id.ToString());
 
-            return View(v);
+            return View(vehicle);
         }
 
         // POST: Edit
@@ -111,20 +111,20 @@ namespace FleetManagementSystem_.Net.Areas.VehicleStorage.Controllers
         public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var v = await _repository.GetByIdAsync(id, cancellationToken);
-            if (v == null)
+            var vehicle = await _repository.GetByIdAsync(id, cancellationToken);
+            if (vehicle == null)
             {
                 return NotFound();
             }
 
-            var storageEntries = await _vehicleStorageRepository.GetByVehicleAsync(v.Id, cancellationToken);
+            var storageEntries = await _vehicleStorageRepository.GetByVehicleAsync(vehicle.Id, cancellationToken);
             if (storageEntries.Any())
             {
-                _alertService.AddAlert($"Vehicle '{v.RegistrationNumber}' cannot be deleted because it is used in vehicle storage.", AlertLevel.Error);
+                _alertService.AddAlert($"Vehicle '{vehicle.RegistrationNumber}' cannot be deleted because it is used in vehicle storage.", AlertLevel.Error);
                 return RedirectToAction(nameof(Index));
             }
 
-            var deleted = await _repository.DeleteAsync(v, cancellationToken);
+            var deleted = await _repository.DeleteAsync(vehicle, cancellationToken);
             if (!deleted)
             {
                 _alertService.AddAlert("Could not delete vehicle.", AlertLevel.Error);
